@@ -13,6 +13,10 @@ def receive():
             message = client.recv(1024).decode("ascii")
             if message == "USER":
                 client.send(username.encode("ascii"))
+            elif message == "SERVER SHUTDOWN":
+                print("Server has shut down. Disconnecting...")
+                client.close()
+                break
             else:
                 print(message)
         except:
@@ -31,8 +35,9 @@ def write():
             client.send(f"{username}: {message}".encode("ascii"))
 
 
-receive_thread = threading.Thread(target=receive)
-receive_thread.start()
+if __name__ == "__main__":
+    receive_thread = threading.Thread(target=receive)
+    receive_thread.start()
 
-write_thread = threading.Thread(target=write)
-write_thread.start()
+    write_thread = threading.Thread(target=write)
+    write_thread.start()
