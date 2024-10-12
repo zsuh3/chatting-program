@@ -23,8 +23,12 @@ def receive():
 
 def write():
     while True:
-        message = f"{username}: {input('')}"
-        client.send(message.encode("ascii"))
+        message = input("")
+        if message.lower() == "/leave":
+            client.close()
+            break
+        else:
+            client.send(f"{username}: {message}".encode("ascii"))
 
 
 receive_thread = threading.Thread(target=receive)
