@@ -50,5 +50,19 @@ def receive():
         thread.start()
 
 
-print("Server is listening...")
-receive()
+def server_commands():
+    while True:
+        command = input("")
+        if command.lower() == "/quit":
+            broadcast("SERVER SHUTDOWN".encode("ascii"))
+            server.close()
+            break
+
+
+if __name__ == "__main__":
+    print("Server is listening...")
+
+    command_thread = threading.Thread(target=server_commands)
+    command_thread.start()
+
+    receive()
