@@ -74,11 +74,25 @@ def register_user(client):
 
         users[username] = password
         user.save_user(users)
-        client.send(f"{username} successfully registered!")
+        client.send(f"{username} successfully registered!".encode("ascii"))
 
 
-def login_user():
-    pass
+def login_user(client):
+    users = user.load_users()
+
+    client.send("Enter username: ".encode("ascii"))
+    username = client.recv(1024).decode("ascii")
+
+    if username in users:
+        client.send("Enter password: ".encode("ascii"))
+        password = client.recv(1024).decode("ascii")
+
+        if users[username] == password:
+            client.send("Login successful!".encode("ascii"))
+        else:
+            client.send("Invalid password!".encode("ascii"))
+    else:
+        client.send(f"{username} not found!".encode("ascii"))
 
 
 if __name__ == "__main__":
