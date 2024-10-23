@@ -1,5 +1,6 @@
 import socket
 import threading
+from user import load_users, save_user
 
 host = "127.0.0.1"
 port = 10001
@@ -10,6 +11,8 @@ server.listen()
 
 clients = []
 usernames = []
+
+users = load_users()
 
 
 def broadcast(message):
@@ -37,8 +40,27 @@ def receive():
         client, address = server.accept()
         print(f"Connected with {str(address)}")
 
-        client.send("USER".encode("ascii"))
-        username = client.recv(1024).decode("ascii")
+        while True:
+            # debugging print statements
+            client.send("Type 1 to register or 2 to login: ".encode("ascii"))
+            print("***** Waiting for option *****")
+            option = client.recv(1024).decode("ascii")
+            print("***** Received option *****")
+
+            if option == "1":
+                # register
+                register_successful, username = register_user(client)
+                if register_successful:
+                    break
+            elif option == "2":
+                # login
+                login_successful, username = login_user(client)
+                if login_successful:
+                    break
+            else:
+                client.send("Invalid option. Try again.\n".encode("ascii"))
+
+        # successful registration or login
         usernames.append(username)
         clients.append(client)
 
@@ -57,6 +79,42 @@ def server_commands():
             broadcast("SERVER SHUTDOWN".encode("ascii"))
             server.close()
             break
+
+
+def register_user(client):
+    client.send("Enter username: ".encode("ascii"))
+    username = client.recv(1024).decode("ascii")
+
+    if username in users:
+        client.send("Username already exists. Try a different username.".encode("ascii"))
+        return False, None
+    else:
+        client.send("Enter password: ".encode("ascii"))
+        password = client.recv(1024).decode("ascii")
+
+        users[username] = password
+        save_user(users)
+        client.send("Registration successful!".encode("ascii"))
+        return True, username
+
+
+def login_user(client):
+    client.send("Enter username: ".encode("ascii"))
+    username = client.recv(1024).decode("ascii")
+
+    if username in users:
+        client.send("Enter password: ".encode("ascii"))
+        password = client.recv(1024).decode("ascii")
+
+        if users[username] == password:
+            client.send("Login successful!".encode("ascii"))
+            return True, username
+        else:
+            client.send("Invalid password. Try again.".encode("ascii"))
+            return False, None
+    else:
+        client.send(f"{username} not found!".encode("ascii"))
+        return False, None
 
 
 if __name__ == "__main__":
