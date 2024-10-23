@@ -19,13 +19,13 @@ def receive():
                 client.close()
                 break
             elif message == "Type 1 to register or 2 to login: ":
-                user_option = input(message)
+                user_option = input(message).strip()
                 client.send(user_option.encode("ascii"))
             elif message == "Enter username: ":
-                username = input(message)
+                username = input(message).strip()
                 client.send(username.encode("ascii"))
             elif message == "Enter password: ":
-                password = input(message)
+                password = input(message).strip()
                 client.send(password.encode("ascii"))
             else:
                 print(message)
