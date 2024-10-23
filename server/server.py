@@ -1,5 +1,6 @@
 import socket
 import threading
+import user
 
 host = "127.0.0.1"
 port = 10001
@@ -57,6 +58,14 @@ def server_commands():
             broadcast("SERVER SHUTDOWN".encode("ascii"))
             server.close()
             break
+
+
+def register_user():
+    pass
+
+
+def login_user():
+    pass
 
 
 if __name__ == "__main__":
