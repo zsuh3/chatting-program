@@ -7,5 +7,6 @@ def load_users():
 
 
 def save_user(user):
-    pass
+    with open("users.json", "w") as write_user:
+        json.dump(user, write_user)
 
