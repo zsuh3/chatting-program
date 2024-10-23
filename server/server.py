@@ -60,8 +60,21 @@ def server_commands():
             break
 
 
-def register_user():
-    pass
+def register_user(client):
+    users = user.load_users()
+
+    client.send("Enter username: ".encode("ascii"))
+    username = client.recv(1024).decode("ascii")
+
+    if username in users:
+        client.send("Username already exists. Try a different username.")
+    else:
+        client.send("Enter password: ".encode("ascii"))
+        password = client.recv(1024).decode("ascii")
+
+        users[username] = password
+        user.save_user(users)
+        client.send(f"{username} successfully registered!")
 
 
 def login_user():
