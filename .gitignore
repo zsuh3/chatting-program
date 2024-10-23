@@ -1,4 +1,13 @@
-# MAC system files
+# Ignore MAC system files
 .DS_store
 
+# Ignore Python virtual environment
+venv/
+*.pyc
+__pycache__/
+
+# Ignore users.json (stores user's username and password)
+users.json
+
+# Ignore IDE related files
 .idea/
