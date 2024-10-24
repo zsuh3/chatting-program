@@ -1,61 +1,49 @@
 import socket
 import ssl
-import threading
-
-SERVER_HOST = "localhost"
-PORT = 10001
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.load_verify_locations("../cert.pem")
-
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client = context.wrap_socket(client_socket, server_hostname=SERVER_HOST)
-client.connect((SERVER_HOST, PORT))
-
-username = ""
+import sys
+from PyQt6.QtWidgets import QApplication
+from frontend.login_register import LoginScreen
 
 
-def receive():
-    global username
+class Client:
+    def __init__(self, host="localhost", port=10001):
+        self.host = host
+        self.port = port
+        self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+        self.context.load_verify_locations("../cert.pem")
+        self.client_socket = None
+        self.username = ""
 
-    while True:
+    def connect(self):
         try:
-            message = client.recv(1024).decode("utf-8")
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client = self.context.wrap_socket(self.client_socket, server_hostname=self.host)
+            self.client.connect((self.host, self.port))
+            print("********** Server Connection Successful **********")
+        except Exception as e:
+            print(f"********** Server Error: {e} **********")
 
-            if message == "SERVER SHUTDOWN":
-                print("Server has shut down. Disconnecting...")
-                client.close()
+    def send_message(self, message):
+        if self.client_socket:
+            self.client_socket.sendall(message.encode('utf-8'))
+
+    def receive_message(self):
+        while True:
+            try:
+                message = self.client_socket.recv(1024).decode('utf-8')
+                if message:
+                    return message
+            except:
                 break
-            elif message == "Type '1' to register or '2' to login: ":
-                user_option = input(message).strip()
-                client.send(user_option.encode("utf-8"))
-            elif message == "Enter username: ":
-                username = input(message).strip()
-                client.send(username.encode("utf-8"))
-            elif message == "Enter password: ":
-                password = input(message).strip()
-                client.send(password.encode("utf-8"))
-            else:
-                print(message)
 
-        except:
-            print("An error occurred!")
-            client.close()
-            break
-
-
-def write():
-    while True:
-        message = input("").strip()
-        if not message:
-            continue
-
-        client.send(f"{username}: {message}".encode("utf-8"))
+    def start_gui(self):
+        app = QApplication(sys.argv)
+        login_window = LoginScreen(self)
+        login_window.show()
+        sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    receive_thread = threading.Thread(target=receive)
-    receive_thread.start()
-
-    write_thread = threading.Thread(target=write)
-    write_thread.start()
+    client = Client()
+    client.connect()
+    client.start_gui()
