@@ -1,8 +1,16 @@
 import socket
+import ssl
 import threading
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("127.0.0.1", 10001))
+SERVER_HOST = "localhost"
+PORT = 10001
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_verify_locations("../cert.pem")
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client = context.wrap_socket(client_socket, server_hostname=SERVER_HOST)
+client.connect((SERVER_HOST, PORT))
 
 username = ""
 
@@ -18,7 +26,7 @@ def receive():
                 print("Server has shut down. Disconnecting...")
                 client.close()
                 break
-            elif message == "Type 1 to register or 2 to login: ":
+            elif message == "Type '1' to register or '2' to login: ":
                 user_option = input(message).strip()
                 client.send(user_option.encode("utf-8"))
             elif message == "Enter username: ":
