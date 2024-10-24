@@ -2,7 +2,7 @@ import socket
 import threading
 from user import load_users, save_user
 
-host = "127.0.0.1"
+host = "localhost"
 port = 10001
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
