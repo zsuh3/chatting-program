@@ -79,7 +79,7 @@ class Client(tk.Tk):
         spacer.pack()
 
         # sign up button
-        self.register_button = Button(self.register_login, text="Sign Up", command=self.register,
+        self.register_button = Button(self.register_login, text="Sign Up", command=self.user_register,
                                       font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
                                       activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
                                       highlightbackground="#705C53", relief="flat")
@@ -89,7 +89,7 @@ class Client(tk.Tk):
         spacer.pack()
 
         # sign in button
-        self.login_button = Button(self.register_login, text="Sign In", command=self.login,
+        self.login_button = Button(self.register_login, text="Sign In", command=self.user_login,
                                    font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
                                    activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
                                    highlightbackground="#705C53", relief="flat")
@@ -119,7 +119,7 @@ class Client(tk.Tk):
             self.password_input.delete(0, tk.END)
             self.password_input.config(show="*")
 
-    def register(self):
+    def user_register(self):
         """ Handle registration process """
 
         username = self.username_input.get().strip()
@@ -129,7 +129,7 @@ class Client(tk.Tk):
             self.send_message(f"REGISTER:{username}:{password}")
             self.receive_response()
 
-    def login(self):
+    def user_login(self):
         """ Handle login process """
 
         username = self.username_input.get().strip()
