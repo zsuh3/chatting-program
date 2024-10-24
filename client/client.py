@@ -26,7 +26,7 @@ def receive():
                 print("Server has shut down. Disconnecting...")
                 client.close()
                 break
-            elif message == "Type 1 to register or 2 to login: ":
+            elif message == "Type '1' to register or '2' to login: ":
                 user_option = input(message).strip()
                 client.send(user_option.encode("utf-8"))
             elif message == "Enter username: ":

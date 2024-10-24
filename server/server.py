@@ -96,7 +96,7 @@ def register_user(client):
     username = client.recv(1024).decode("utf-8")
 
     if username in users:
-        client.send("Username already exists. Try a different username.\n".encode("utf-8"))
+        client.send("Username already exists. Try a different username.".encode("utf-8"))
         return False, None
     else:
         client.send("Enter password: ".encode("utf-8"))
