@@ -1,7 +1,6 @@
 import socket
 import ssl
-import sys
-from PyQt6.QtWidgets import QApplication
+import tkinter as tk
 from frontend.login_register import LoginScreen
 
 
@@ -21,11 +20,14 @@ class Client:
             self.client.connect((self.host, self.port))
             print("********** Server Connection Successful **********")
         except Exception as e:
-            print(f"********** Server Error: {e} **********")
+            print(f"********** Server Connection Error: {e} **********")
 
     def send_message(self, message):
         if self.client_socket:
-            self.client_socket.sendall(message.encode('utf-8'))
+            try:
+                self.client_socket.sendall(message.encode('utf-8'))
+            except Exception as e:
+                print(f"********** Send Message Error  **********")
 
     def receive_message(self):
         while True:
@@ -33,14 +35,14 @@ class Client:
                 message = self.client_socket.recv(1024).decode('utf-8')
                 if message:
                     return message
-            except:
-                break
+            except Exception as e:
+                print(f"********** Receive Message Error **********")
+                return None
 
     def start_gui(self):
-        app = QApplication(sys.argv)
-        login_window = LoginScreen(self)
-        login_window.show()
-        sys.exit(app.exec())
+        root = tk.Tk()
+        login_screen = LoginScreen(root, self)
+        root.mainloop()
 
 
 if __name__ == "__main__":

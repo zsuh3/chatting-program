@@ -1,12 +1,11 @@
-from PyQt6.QtWidgets import QWidget
+import tkinter as tk
 
 
-class ChatScreen(QWidget):
-    def __init__(self, client_app):
-        super().__init__()
+class ChatScreen:
+    def __init__(self, root, client_app):
+        self.root = root
         self.client_app = client_app
-        self.init_ui()
+        self.root.title("Chat")
+        self.root.geometry("736x414")
 
-    def init_ui(self):
-        self.setWindowTitle("Chat")
         pass
