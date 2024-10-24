@@ -58,6 +58,11 @@ class LoginScreen(QWidget):
         self.login_button.setFixedWidth(300)
         form_layout.addRow(self.login_button)
 
+        self.invalid_input_label = QLabel("Invalid Username or Password")
+        self.invalid_input_label.setStyleSheet("color: red; font-size: 14px;")
+        self.invalid_input_label.setVisible(False)
+        form_layout.addRow(self.invalid_input_label)
+
         main_layout.addLayout(form_layout)
         self.setLayout(main_layout)
 
@@ -83,3 +88,25 @@ class LoginScreen(QWidget):
         self.chat_window = ChatScreen(self.client_app)
         self.chat_window.show()
         self.close()
+
+    def register(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+        if username and password:
+            self.client_app.send_message(f"REGISTER:{username}:{password}")
+            response = self.client_app.receive_message()
+            if response == "SUCCESSFUL":
+                self.switch_to_chat()
+            else:
+                self.invalid_input_label.setVisible(True)
+
+    def login(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+        if username and password:
+            self.client_app.send_message(f"LOGIN:{username}:{password}")
+            response = self.client_app.receive_message()
+            if response == "SUCCESSFUL":
+                self.switch_to_chat()
+            else:
+                self.invalid_input_label.setVisible(True)
