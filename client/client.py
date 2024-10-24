@@ -2,114 +2,190 @@ import socket
 import ssl
 import threading
 import tkinter as tk
-from frontend.login_register import LoginScreen
+from tkinter import scrolledtext, messagebox
+
+PORT = 10001
+SERVER = "localhost"
+FORMAT = "utf-8"
+
+LABEL_TEXT_FONT = ("Arial", 16, "bold")
+INPUT_TEXT_FONT = ("Arial", 16)
+BUTTON_TEXT_FONT = ("Arial", 18)
+ERROR_TEXT_FONT = ("Arial", 14, "bold")
 
 
-class Client:
-    def __init__(self, host="localhost", port=10001):
-        self.host = host
-        self.port = port
+class Client(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Chat Client")
+        self.geometry("736x414")
+
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        self.context.load_verify_locations("../cert.pem")
         self.client_socket = None
-        self.client = None
+        self.connect()
+
+        self.register_login = tk.Frame(self, bg="#EDDFE0")
+        self.chat = tk.Frame(self, bg="#EDDFE0")
+        self.initialise_register_login()
+        self.initialise_chat()
+        self.register_login.pack(expand=True, fill="both")
+
         self.username = ""
-        self.gui = None
-        self.register_login_timeout = 1.0
-        self.chat_timeout = 100.0
 
     def connect(self):
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.client = self.context.wrap_socket(self.client_socket, server_hostname=self.host)
-            self.client.settimeout(self.register_login_timeout)
-            self.client.connect((self.host, self.port))
-            print("********** Server Connection Successful **********")
+            self.client_socket = self.context.wrap_socket(self.client_socket, server_hostname=SERVER)
+            self.client_socket.connect((SERVER, PORT))
+            print("Connected to the server.")
         except Exception as e:
-            print(f"********** Server Connection Error: {e} **********")
+            print(f"Failed to connect to the server: {e}")
+            messagebox.showerror("Connection Error", "Failed to connect to the server.")
+            self.destroy()
 
-    def send_message(self, message):
-        if self.client:
-            try:
-                self.client.send(message.encode('utf-8'))
-                print(f"Sent: {message}")
-            except Exception as e:
-                print(f"********** Send Message Error **********")
+    def initialise_register_login(self):
+        spacer = tk.Label(self.register_login, text="", height=3, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
 
-    def receive_message(self):
+        # username area
+        self.username_label = tk.Label(self.register_login, text="Enter Username:", font=LABEL_TEXT_FONT, bg="#EDDFE0",
+                                       fg="#705C53")
+        self.username_label.pack(pady=5)
+        self.username_input = tk.Entry(self.register_login, font=INPUT_TEXT_FONT, bg="#EDDFE0", fg="#705C53",
+                                       relief="flat")
+        self.username_input.config(highlightbackground="#B7B7B7", highlightcolor="#B7B7B7")
+        self.username_input.insert(0, "username")
+        self.username_input.bind("<FocusIn>", self.clear_text)
+        self.username_input.pack()
+
+        spacer = tk.Label(self.register_login, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
+
+        # password area
+        self.password_label = tk.Label(self.register_login, text="Enter Password:", font=LABEL_TEXT_FONT, bg="#EDDFE0",
+                                       fg="#705C53")
+        self.password_label.pack(pady=5)
+        self.password_input = tk.Entry(self.register_login, font=INPUT_TEXT_FONT, bg="#EDDFE0", fg="#705C53",
+                                       relief="flat")
+        self.password_input.config(highlightbackground="#B7B7B7", highlightcolor="#B7B7B7")
+        self.password_input.insert(0, "password")
+        self.password_input.bind("<FocusIn>", self.clear_text)
+        self.password_input.pack()
+
+        spacer = tk.Label(self.register_login, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
+
+        # sign up button
+        self.register_button = tk.Button(self.register_login, text="Sign Up", command=self.register,
+                                         font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
+                                         activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
+                                         highlightbackground="#705C53", relief="flat")
+        self.register_button.pack()
+
+        spacer = tk.Label(self.register_login, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
+
+        # sign in button
+        self.login_button = tk.Button(self.register_login, text="Sign In", command=self.login,
+                                      font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
+                                      activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
+                                      highlightbackground="#705C53", relief="flat")
+        self.login_button.pack()
+
+    def initialise_chat(self):
+        self.chat_area = scrolledtext.ScrolledText(self.chat, state="disabled", wrap="word", bg="#F5F5F7", fg="#705C53",
+                                                   highlightthickness=2, highlightbackground="#B7B7B7",
+                                                   font=("Arial", 18), height=10)
+        self.chat_area.pack(expand=True, fill="both", padx=20, pady=5)
+
+        self.message_input = tk.Entry(self.chat, font=("Arial", 16), bg="#EDDFE0", fg="#705C53", relief="flat")
+        self.message_input.config(highlightbackground="#B7B7B7", highlightcolor="#B7B7B7")
+        self.message_input.pack(fill="x", padx=20, pady=10)
+        self.message_input.bind("<Return>", lambda event: self.send_chat_message())
+
+        self.send_button = tk.Button(self.chat, text="Send", command=self.send_chat_message, font=("Arial", 18),
+                                bg="#705C53", fg="#F5F5F7", activebackground="#705C53", activeforeground="#F5F5F7",
+                                borderwidth=0, highlightthickness=2, highlightbackground="#705C53", relief="flat")
+        self.send_button.pack(fill="x", padx=20, pady=20)
+
+    def clear_text(self, event):
+        if event.widget == self.username_input and self.username_input.get() == "username":
+            self.username_input.delete(0, tk.END)
+            self.username_input.config(show="")
+        elif event.widget == self.password_input and self.password_input.get() == "password":
+            self.password_input.delete(0, tk.END)
+            self.password_input.config(show="*")
+
+    def register(self):
+        username = self.username_input.get().strip()
+        password = self.password_input.get().strip()
+        if username and password:
+            self.username = username
+            self.send_message(f"REGISTER:{username}:{password}")
+            self.receive_response()
+
+    def login(self):
+        username = self.username_input.get().strip()
+        password = self.password_input.get().strip()
+        if username and password:
+            self.username = username
+            self.send_message(f"LOGIN:{username}:{password}")
+            self.receive_response()
+
+    def switch_to_chat(self):
+        self.register_login.pack_forget()
+        self.chat.pack(expand=True, fill="both")
+        threading.Thread(target=self.receive_messages, daemon=True).start()
+
+    def send_message(self, msg):
         try:
-            while True:
-                message = self.client.recv(1024).decode('utf-8')
-                if not message:
-                    print("********** Server closed connection **********")
-                    self.client.close()
-                    break
-
-                print(f"Received: {message}")
-
-                if message == "SERVER SHUTDOWN":
-                    print("Server has shut down. Disconnecting...")
-                    self.client.close()
-                    break
-
-                elif "Username already exists" in message:
-                    if self.gui:
-                        self.gui.display_error("Registration failed: Username already exists.")
-                elif "Login successful" in message:
-                    if self.gui:
-                        self.gui.switch_to_chat()
-                elif "Registration successful" in message:
-                    if self.gui:
-                        self.gui.switch_to_chat()
-                elif "Invalid password" in message or "User not found" in message:
-                    if self.gui:
-                        self.gui.display_error(message)
-
-                else:
-                    if self.gui:
-                        self.gui.display_error(message)
-
+            if self.client_socket:
+                self.client_socket.send(msg.encode(FORMAT))
+                print(f"Sent: {msg}")
+            else:
+                print("Error: Client socket is not connected.")
         except Exception as e:
-            print(f"********** Receive Message Error: {e} **********")
+            print(f"Error sending message: {e}")
 
-    def process_message(self, message):
-        message_split = message.split(":")
-        print("PROCESS message here")
+    def send_chat_message(self):
+        msg = self.message_input.get().strip()
+        if msg:
+            self.send_message(f"{self.username}: {msg}")
+            self.append_message(f"You: {msg}")
+            self.message_input.delete(0, tk.END)
 
-        if len(message_split) == 3:
-            command = message_split[0].strip()
-            username = message_split[1].strip()
-            password = message_split[2].strip()
+    def receive_response(self):
+        try:
+            response = self.client_socket.recv(1024).decode(FORMAT)
+            print(f"Received: {response}")
+            if "successful" in response.lower():
+                self.switch_to_chat()
+            else:
+                messagebox.showerror("Error", response)
+        except Exception as e:
+            print(f"Error receiving response: {e}")
 
-            if command == "REGISTER":
-                print(f"Registering with username: {username}, password: {password}")
-                self.send_message(f"REGISTER:{username}:{password}")
-            elif command == "LOGIN":
-                print(f"Logging in with username: {username}, password: {password}")
-                self.send_message(f"LOGIN:{username}:{password}")
-        else:
-            print(f"********** Invalid message format: {message}")
-
-    def update_timeout(self, timeout):
-        if self.client:
+    def receive_messages(self):
+        while True:
             try:
-                self.client.settimeout(timeout)
-                print(f"********** Timeout updated to {timeout} seconds **********")
+                msg = self.client_socket.recv(1024).decode(FORMAT)
+                if not msg:
+                    break
+                self.display_message(msg)
             except Exception as e:
-                print(f"********** Error updating timeout: {e} **********")
+                print(f"Error receiving message: {e}")
+                break
 
-    def start_receive_thread(self):
-        receive_thread = threading.Thread(target=self.receive_message, daemon=True)
-        receive_thread.start()
+    def append_message(self, message):
+        self.chat_area.config(state="normal")
+        self.chat_area.insert(tk.END, message + "\n")
+        self.chat_area.config(state="disabled")
+        self.chat_area.see(tk.END)
 
-    def start_gui(self):
-        root = tk.Tk()
-        self.gui = LoginScreen(root, self)
-        self.start_receive_thread()
-        root.mainloop()
+    def display_message(self, msg):
+        self.after(0, self.append_message, msg)
 
 
 if __name__ == "__main__":
     client = Client()
-    client.connect()
-    client.start_gui()
+    client.mainloop()
