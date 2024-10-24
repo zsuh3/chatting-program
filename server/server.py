@@ -52,19 +52,19 @@ def receive():
 
         while True:
             # debugging print statements
-            client.send("Type '1' to register or '2' to login: ".encode("utf-8"))
-            print("***** Waiting for option *****")
-            option = client.recv(1024).decode("utf-8")
-            print("***** Received option *****")
+            print("***** Waiting for message *****")
+            message = client.recv(1024).decode("utf-8")
+            print(message)
+            print("***** Received message *****")
 
-            if option == "1":
+            if "REGISTER" in message:
                 # register
-                register_successful, username = register_user(client)
+                register_successful, username = process_register(client, message)
                 if register_successful:
                     break
-            elif option == "2":
+            elif "LOGIN" in message:
                 # login
-                login_successful, username = login_user(client)
+                login_successful, username = process_login(client, message)
                 if login_successful:
                     break
             else:
@@ -80,6 +80,42 @@ def receive():
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+
+
+def process_register(client, message):
+    try:
+        _, username, password = message.split(":")
+    except ValueError:
+        client.send("Invalid registration format. Use REGISTER:username:password.\n".encode("utf-8"))
+        return False, None
+
+    if username in users:
+        client.send("Username already exists. Try a different username.\n".encode("utf-8"))
+        return False, None
+    else:
+        users[username] = password
+        save_user(users)
+        client.send("Registration successful!\n".encode("utf-8"))
+        return True, username
+
+
+def process_login(client, message):
+    try:
+        _, username, password = message.split(":")
+    except ValueError:
+        client.send("Invalid login format. Use LOGIN:username:password.\n".encode("utf-8"))
+        return False, None
+
+    if username in users:
+        if users[username] == password:
+            client.send("Login successful!\n".encode("utf-8"))
+            return True, username
+        else:
+            client.send("Invalid password. Try again.\n".encode("utf-8"))
+            return False, None
+    else:
+        client.send(f"User {username} not found.\n".encode("utf-8"))
+        return False, None
 
 
 def server_commands():
