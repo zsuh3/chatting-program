@@ -1,8 +1,11 @@
 import socket
 import threading
 
+SERVER_HOST = "localhost"
+PORT = 10001
+
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("localhost", 10001))
+client.connect((SERVER_HOST, PORT))
 
 username = ""
 

@@ -2,11 +2,11 @@ import socket
 import threading
 from user import load_users, save_user
 
-host = "localhost"
-port = 10001
+SERVER_HOST = "localhost"
+PORT = 10001
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((host, port))
+server.bind((SERVER_HOST, PORT))
 server.listen()
 
 clients = []
@@ -86,7 +86,7 @@ def register_user(client):
     username = client.recv(1024).decode("utf-8")
 
     if username in users:
-        client.send("Username already exists. Try a different username.".encode("utf-8"))
+        client.send("Username already exists. Try a different username.\n".encode("utf-8"))
         return False, None
     else:
         client.send("Enter password: ".encode("utf-8"))
