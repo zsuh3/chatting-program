@@ -7,6 +7,8 @@ PORT = 10001
 HOST = "localhost"
 FORMAT = "utf-8"
 
+SHIFT_N = 5
+
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 context.load_cert_chain(certfile="../cert.pem", keyfile="../cert.pem")
 context.load_verify_locations("../cert.pem")
@@ -32,13 +34,14 @@ def handle_client(client_socket):
                 if username in users:
                     client_socket.send("Username already exists.".encode(FORMAT))
                 else:
-                    users[username] = password
+                    encrypted_password = encrypt_password(password)
+                    users[username] = encrypted_password
                     save_user(users)
                     client_socket.send("Registration successful.".encode(FORMAT))
                     break
             elif "LOGIN" in msg:
                 _, username, password = msg.split(":")
-                if username in users and users[username] == password:
+                if username in users and users[username] == encrypt_password(password):
                     client_socket.send("Login successful.".encode(FORMAT))
                     break
                 else:
@@ -51,7 +54,6 @@ def handle_client(client_socket):
             msg = client_socket.recv(1024).decode(FORMAT)
             if not msg:
                 break
-
             broadcast(msg, client_socket)
 
     finally:
@@ -59,9 +61,22 @@ def handle_client(client_socket):
         client_socket.close()
 
 
+def encrypt_password(password, shift=SHIFT_N):
+    encrypted_password = ""
+    for char in password:
+        if char.isalpha():
+            if char.isupper():
+                encrypted_password += chr((ord(char) + shift - 65) % 26 + 65)
+            else:
+                encrypted_password += chr((ord(char) + shift - 97) % 26 + 97)
+        else:
+            encrypted_password += char
+    return encrypted_password
+
+
 def broadcast(msg, sender=None):
     """ Broadcast to all clients except sender """
-    
+
     for client in clients:
         if client != sender:
             try:
