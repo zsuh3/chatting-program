@@ -30,7 +30,7 @@ def handle(client):
             clients.remove(client)
             client.close()
             username = usernames[index]
-            broadcast(f"{username} left the chat!".encode("ascii"))
+            broadcast(f"{username} left the chat!".encode("utf-8"))
             usernames.remove(username)
             break
 
@@ -42,9 +42,9 @@ def receive():
 
         while True:
             # debugging print statements
-            client.send("Type 1 to register or 2 to login: ".encode("ascii"))
+            client.send("Type 1 to register or 2 to login: ".encode("utf-8"))
             print("***** Waiting for option *****")
-            option = client.recv(1024).decode("ascii")
+            option = client.recv(1024).decode("utf-8")
             print("***** Received option *****")
 
             if option == "1":
@@ -58,15 +58,15 @@ def receive():
                 if login_successful:
                     break
             else:
-                client.send("Invalid option. Try again.\n".encode("ascii"))
+                client.send("Invalid option. Try again.\n".encode("utf-8"))
 
         # successful registration or login
         usernames.append(username)
         clients.append(client)
 
         print(f"Username of the client: {username}")
-        client.send("Connected to the server!\n".encode("ascii"))
-        broadcast(f"{username} has joined the chat!".encode("ascii"))
+        client.send("Connected to the server!\n".encode("utf-8"))
+        broadcast(f"{username} has joined the chat!".encode("utf-8"))
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
@@ -76,44 +76,44 @@ def server_commands():
     while True:
         command = input("")
         if command.lower() == "/quit":
-            broadcast("SERVER SHUTDOWN".encode("ascii"))
+            broadcast("SERVER SHUTDOWN".encode("utf-8"))
             server.close()
             break
 
 
 def register_user(client):
-    client.send("Enter username: ".encode("ascii"))
-    username = client.recv(1024).decode("ascii")
+    client.send("Enter username: ".encode("utf-8"))
+    username = client.recv(1024).decode("utf-8")
 
     if username in users:
-        client.send("Username already exists. Try a different username.".encode("ascii"))
+        client.send("Username already exists. Try a different username.".encode("utf-8"))
         return False, None
     else:
-        client.send("Enter password: ".encode("ascii"))
-        password = client.recv(1024).decode("ascii")
+        client.send("Enter password: ".encode("utf-8"))
+        password = client.recv(1024).decode("utf-8")
 
         users[username] = password
         save_user(users)
-        client.send("Registration successful!".encode("ascii"))
+        client.send("Registration successful!".encode("utf-8"))
         return True, username
 
 
 def login_user(client):
-    client.send("Enter username: ".encode("ascii"))
-    username = client.recv(1024).decode("ascii")
+    client.send("Enter username: ".encode("utf-8"))
+    username = client.recv(1024).decode("utf-8")
 
     if username in users:
-        client.send("Enter password: ".encode("ascii"))
-        password = client.recv(1024).decode("ascii")
+        client.send("Enter password: ".encode("utf-8"))
+        password = client.recv(1024).decode("utf-8")
 
         if users[username] == password:
-            client.send("Login successful!".encode("ascii"))
+            client.send("Login successful!".encode("utf-8"))
             return True, username
         else:
-            client.send("Invalid password. Try again.".encode("ascii"))
+            client.send("Invalid password. Try again.".encode("utf-8"))
             return False, None
     else:
-        client.send(f"{username} not found!".encode("ascii"))
+        client.send(f"{username} not found!".encode("utf-8"))
         return False, None
 
 

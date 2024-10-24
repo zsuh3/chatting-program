@@ -12,7 +12,7 @@ def receive():
 
     while True:
         try:
-            message = client.recv(1024).decode("ascii")
+            message = client.recv(1024).decode("utf-8")
 
             if message == "SERVER SHUTDOWN":
                 print("Server has shut down. Disconnecting...")
@@ -20,13 +20,13 @@ def receive():
                 break
             elif message == "Type 1 to register or 2 to login: ":
                 user_option = input(message).strip()
-                client.send(user_option.encode("ascii"))
+                client.send(user_option.encode("utf-8"))
             elif message == "Enter username: ":
                 username = input(message).strip()
-                client.send(username.encode("ascii"))
+                client.send(username.encode("utf-8"))
             elif message == "Enter password: ":
                 password = input(message).strip()
-                client.send(password.encode("ascii"))
+                client.send(password.encode("utf-8"))
             else:
                 print(message)
 
@@ -42,7 +42,7 @@ def write():
         if not message:
             continue
 
-        client.send(f"{username}: {message}".encode("ascii"))
+        client.send(f"{username}: {message}".encode("utf-8"))
 
 
 if __name__ == "__main__":
