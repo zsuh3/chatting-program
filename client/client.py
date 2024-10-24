@@ -3,6 +3,7 @@ import ssl
 import threading
 import tkinter as tk
 from tkinter import scrolledtext, messagebox
+from tkmacosx import Button
 
 PORT = 10001
 SERVER = "localhost"
@@ -76,20 +77,20 @@ class Client(tk.Tk):
         spacer.pack()
 
         # sign up button
-        self.register_button = tk.Button(self.register_login, text="Sign Up", command=self.register,
-                                         font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
-                                         activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
-                                         highlightbackground="#705C53", relief="flat")
+        self.register_button = Button(self.register_login, text="Sign Up", command=self.register,
+                                      font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
+                                      activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
+                                      highlightbackground="#705C53", relief="flat")
         self.register_button.pack()
 
         spacer = tk.Label(self.register_login, text="", height=1, bg="#EDDFE0", fg="#705C53")
         spacer.pack()
 
         # sign in button
-        self.login_button = tk.Button(self.register_login, text="Sign In", command=self.login,
-                                      font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
-                                      activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
-                                      highlightbackground="#705C53", relief="flat")
+        self.login_button = Button(self.register_login, text="Sign In", command=self.login,
+                                   font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
+                                   activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
+                                   highlightbackground="#705C53", relief="flat")
         self.login_button.pack()
 
     def initialise_chat(self):
@@ -104,8 +105,8 @@ class Client(tk.Tk):
         self.message_input.bind("<Return>", lambda event: self.send_chat_message())
 
         self.send_button = tk.Button(self.chat, text="Send", command=self.send_chat_message, font=("Arial", 18),
-                                bg="#705C53", fg="#F5F5F7", activebackground="#705C53", activeforeground="#F5F5F7",
-                                borderwidth=0, highlightthickness=2, highlightbackground="#705C53", relief="flat")
+                                     bg="#705C53", fg="#F5F5F7", activebackground="#705C53", activeforeground="#F5F5F7",
+                                     borderwidth=0, highlightthickness=2, highlightbackground="#705C53", relief="flat")
         self.send_button.pack(fill="x", padx=20, pady=20)
 
     def clear_text(self, event):
