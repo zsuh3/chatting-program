@@ -1,8 +1,11 @@
 from .chat import ChatScreen
 import tkinter as tk
+# from tkmacosx import Button
 
-TEXT_FONT = ("Arial", 16)
-ERROR_TEXT_FONT = ("Arial", 12)
+LABEL_TEXT_FONT = ("Arial", 16, "bold")
+INPUT_TEXT_FONT = ("Arial", 16)
+BUTTON_TEXT_FONT = ("Arial", 18)
+ERROR_TEXT_FONT = ("Arial", 12, "bold")
 
 
 class LoginScreen:
@@ -13,30 +16,64 @@ class LoginScreen:
         self.root.geometry("736x414")
         self.root.config(bg="#EDDFE0")
 
+        spacer = tk.Label(root, text="", height=2, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
+
         # username
-        self.username_label = tk.Label(root, text="Enter Username:", font=TEXT_FONT)
+        self.username_label = tk.Label(root, text="Enter Username:", font=LABEL_TEXT_FONT, bg="#EDDFE0", fg="#705C53")
         self.username_label.pack(pady=5)
-        self.username_input = tk.Entry(root, font=TEXT_FONT)
-        self.username_input.pack(pady=5)
+        self.username_input = tk.Entry(root, font=INPUT_TEXT_FONT, bg="#EDDFE0", fg="#705C53", relief="flat")
+        self.username_input.config(highlightbackground="#B7B7B7", highlightcolor="#B7B7B7")
+        self.username_input.insert(0, "username")
+        self.username_input.bind("<FocusIn>", self.clear_text)
+        self.username_input.pack()
+
+        spacer = tk.Label(root, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
 
         # password
-        self.password_label = tk.Label(root, text="Enter Password:", font=TEXT_FONT)
+        self.password_label = tk.Label(root, text="Enter Password:", font=LABEL_TEXT_FONT, bg="#EDDFE0", fg="#705C53")
         self.password_label.pack(pady=5)
-        self.password_input = tk.Entry(root, font=TEXT_FONT, show="*")
-        self.password_input.pack(pady=5)
+        self.password_input = tk.Entry(root, font=INPUT_TEXT_FONT, bg="#EDDFE0", fg="#705C53", relief="flat")
+        self.password_input.config(highlightbackground="#B7B7B7", highlightcolor="#B7B7B7")
+        self.password_input.insert(0, "password")
+        self.password_input.bind("<FocusIn>", self.clear_text)
+        self.password_input.pack()
+
+        spacer = tk.Label(root, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
 
         # register
-        self.register_button = tk.Button(root, text="Sign Up", command=self.register, font=TEXT_FONT)
-        self.register_button.pack(pady=10)
+        self.register_button = tk.Button(root, text="Sign Up", command=self.register, font=BUTTON_TEXT_FONT,
+                                         bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
+                                         activeforeground="#F5F5F7", borderwidth=0, highlightthickness=2,
+                                         highlightbackground="#705C53", relief="flat")
+        self.register_button.pack()
+
+        spacer = tk.Label(root, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
 
         # switch to login
         self.login_button = tk.Button(root, text="Already have an account? Sign In", command=self.switch_to_login,
-                                      font=TEXT_FONT)
-        self.login_button.pack(pady=10)
+                                      font=BUTTON_TEXT_FONT, bg="#705C53", fg="#F5F5F7", activebackground="#705C53",
+                                      activeforeground="#F5F5F7", borderwidth=0, highlightthickness=0,
+                                      highlightcolor="#705C53", relief="flat")
+        self.login_button.pack()
+
+        spacer = tk.Label(root, text="", height=1, bg="#EDDFE0", fg="#705C53")
+        spacer.pack()
 
         # invalid input
-        self.error_label = tk.Label(root, text="", fg="red", font=ERROR_TEXT_FONT)
-        self.error_label.pack(pady=5)
+        self.error_label = tk.Label(root, text="", bg="#EDDFE0", fg="#C96868", font=ERROR_TEXT_FONT)
+        self.error_label.pack()
+
+    def clear_text(self, event):
+        if event.widget == self.username_input and self.username_input.get() == "username":
+            self.username_input.delete(0, tk.END)
+            self.username_input.config(show="")
+        elif event.widget == self.password_input and self.password_input.get() == "password":
+            self.password_input.delete(0, tk.END)
+            self.password_input.config(show="*")
 
     def switch_to_login(self):
         self.register_button.config(text="Sign In", command=self.login)
