@@ -84,6 +84,8 @@ class LoginScreen:
         self.login_button.config(text="Already have an account? Sign In", command=self.switch_to_login)
 
     def switch_to_chat(self):
+        self.client_app.update_timeout(self.client_app.chat_timeout)
+
         self.root.withdraw()
         chat_window = tk.Toplevel(self.root)
         ChatScreen(chat_window, self.client_app)
@@ -100,8 +102,6 @@ class LoginScreen:
                 self.error_label.config(text="Error 500")
             elif "SUCCESSFUL" in response:
                 self.switch_to_chat()
-            else:
-                self.error_label.config(text="Registration failed. Try again.")
 
     def login(self):
         username = self.username_input.get()
@@ -115,5 +115,6 @@ class LoginScreen:
                 self.error_label.config(text="Error 500")
             elif "SUCCESSFUL" in response:
                 self.switch_to_chat()
-            else:
-                self.error_label.config(text="Login failed. Try again.")
+
+    def display_error(self, message):
+        self.error_label.config(text=message)

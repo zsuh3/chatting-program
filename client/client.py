@@ -1,5 +1,6 @@
 import socket
 import ssl
+import threading
 import tkinter as tk
 from frontend.login_register import LoginScreen
 
@@ -13,11 +14,15 @@ class Client:
         self.client_socket = None
         self.client = None
         self.username = ""
+        self.gui = None
+        self.register_login_timeout = 1.0
+        self.chat_timeout = 100.0
 
     def connect(self):
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client = self.context.wrap_socket(self.client_socket, server_hostname=self.host)
+            self.client.settimeout(self.register_login_timeout)
             self.client.connect((self.host, self.port))
             print("********** Server Connection Successful **********")
         except Exception as e:
@@ -27,9 +32,9 @@ class Client:
         if self.client:
             try:
                 self.client.send(message.encode('utf-8'))
-                print(f"Send Message method: {message}")
+                print(f"Sent: {message}")
             except Exception as e:
-                print(f"********** Send Message Error  **********")
+                print(f"********** Send Message Error **********")
 
     def receive_message(self):
         try:
@@ -46,16 +51,30 @@ class Client:
                     print("Server has shut down. Disconnecting...")
                     self.client.close()
                     break
-                elif "REGISTER" in message or "LOGIN" in message:
-                    self.process_message(message)
+
+                elif "Username already exists" in message:
+                    if self.gui:
+                        self.gui.display_error("Registration failed: Username already exists.")
+                elif "Login successful" in message:
+                    if self.gui:
+                        self.gui.switch_to_chat()
+                elif "Registration successful" in message:
+                    if self.gui:
+                        self.gui.switch_to_chat()
+                elif "Invalid password" in message or "User not found" in message:
+                    if self.gui:
+                        self.gui.display_error(message)
+
                 else:
-                    print(message)
+                    if self.gui:
+                        self.gui.display_error(message)
 
         except Exception as e:
             print(f"********** Receive Message Error: {e} **********")
 
     def process_message(self, message):
         message_split = message.split(":")
+        print("process message here in client")
 
         if len(message_split) == 3:
             command = message_split[0].strip()
@@ -72,9 +91,22 @@ class Client:
         else:
             print(f"********** Invalid message format: {message}")
 
+    def update_timeout(self, timeout):
+        if self.client:
+            try:
+                self.client.settimeout(timeout)
+                print(f"********** Timeout updated to {timeout} seconds **********")
+            except Exception as e:
+                print(f"********** Error updating timeout: {e} **********")
+
+    def start_receive_thread(self):
+        receive_thread = threading.Thread(target=self.receive_message, daemon=True)
+        receive_thread.start()
+
     def start_gui(self):
         root = tk.Tk()
-        login_screen = LoginScreen(root, self)
+        self.gui = LoginScreen(root, self)
+        self.start_receive_thread()
         root.mainloop()
 
 
