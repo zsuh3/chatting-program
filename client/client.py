@@ -74,14 +74,13 @@ class Client:
 
     def process_message(self, message):
         message_split = message.split(":")
-        print("process message here in client")
+        print("PROCESS message here")
 
         if len(message_split) == 3:
             command = message_split[0].strip()
             username = message_split[1].strip()
             password = message_split[2].strip()
 
-            # Send REGISTER or LOGIN information to the server
             if command == "REGISTER":
                 print(f"Registering with username: {username}, password: {password}")
                 self.send_message(f"REGISTER:{username}:{password}")

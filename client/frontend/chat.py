@@ -7,5 +7,6 @@ class ChatScreen:
         self.client_app = client_app
         self.root.title("Chat")
         self.root.geometry("736x414")
+        self.root.config(bg="#EDDFE0")
 
         pass
