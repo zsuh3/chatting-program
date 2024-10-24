@@ -34,6 +34,8 @@ class Client(tk.Tk):
         self.username = ""
 
     def connect(self):
+        """ Connect client to server"""
+
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client_socket = self.context.wrap_socket(self.client_socket, server_hostname=SERVER)
@@ -118,6 +120,8 @@ class Client(tk.Tk):
             self.password_input.config(show="*")
 
     def register(self):
+        """ Handle registration process """
+
         username = self.username_input.get().strip()
         password = self.password_input.get().strip()
         if username and password:
@@ -126,6 +130,8 @@ class Client(tk.Tk):
             self.receive_response()
 
     def login(self):
+        """ Handle login process """
+
         username = self.username_input.get().strip()
         password = self.password_input.get().strip()
         if username and password:
@@ -139,6 +145,8 @@ class Client(tk.Tk):
         threading.Thread(target=self.receive_messages, daemon=True).start()
 
     def send_message(self, message):
+        """ Send message to server """
+
         try:
             if self.client_socket:
                 self.client_socket.send(message.encode(FORMAT))
@@ -149,6 +157,8 @@ class Client(tk.Tk):
             print(f"Error sending message: {e}")
 
     def send_chat_message(self):
+        """ Send chat message from message input """
+
         message = self.message_input.get().strip()
         if message:
             self.send_message(f"{self.username}: {message}")

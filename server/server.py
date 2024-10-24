@@ -60,6 +60,8 @@ def handle_client(client_socket):
 
 
 def broadcast(msg, sender=None):
+    """ Broadcast to all clients except sender """
+    
     for client in clients:
         if client != sender:
             try:
