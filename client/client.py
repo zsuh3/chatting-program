@@ -137,21 +137,21 @@ class Client(tk.Tk):
         self.chat.pack(expand=True, fill="both")
         threading.Thread(target=self.receive_messages, daemon=True).start()
 
-    def send_message(self, msg):
+    def send_message(self, message):
         try:
             if self.client_socket:
-                self.client_socket.send(msg.encode(FORMAT))
-                print(f"Sent: {msg}")
+                self.client_socket.send(message.encode(FORMAT))
+                print(f"Sent: {message}")
             else:
                 print("Error: Client socket is not connected.")
         except Exception as e:
             print(f"Error sending message: {e}")
 
     def send_chat_message(self):
-        msg = self.message_input.get().strip()
-        if msg:
-            self.send_message(f"{self.username}: {msg}")
-            self.append_message(f"You: {msg}")
+        message = self.message_input.get().strip()
+        if message:
+            self.send_message(f"{self.username}: {message}")
+            self.append_message(f"You: {message}")
             self.message_input.delete(0, tk.END)
 
     def receive_response(self):
@@ -168,10 +168,10 @@ class Client(tk.Tk):
     def receive_messages(self):
         while True:
             try:
-                msg = self.client_socket.recv(1024).decode(FORMAT)
-                if not msg:
+                message = self.client_socket.recv(1024).decode(FORMAT)
+                if not message:
                     break
-                self.display_message(msg)
+                self.display_message(message)
             except Exception as e:
                 print(f"Error receiving message: {e}")
                 break
@@ -182,8 +182,8 @@ class Client(tk.Tk):
         self.chat_area.config(state="disabled")
         self.chat_area.see(tk.END)
 
-    def display_message(self, msg):
-        self.after(0, self.append_message, msg)
+    def display_message(self, message):
+        self.after(0, self.append_message, message)
 
 
 if __name__ == "__main__":

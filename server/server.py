@@ -4,8 +4,7 @@ import ssl
 from user import load_users, save_user
 
 PORT = 10001
-SERVER = "localhost"
-ADDR = (SERVER, PORT)
+HOST = "localhost"
 FORMAT = "utf-8"
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -15,7 +14,7 @@ context.set_ciphers("AES128-SHA")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server = context.wrap_socket(server, server_side=True)
-server.bind(ADDR)
+server.bind((HOST, PORT))
 server.listen()
 
 clients = set()
@@ -43,7 +42,7 @@ def handle_client(client_socket):
                     client_socket.send("Login successful.".encode(FORMAT))
                     break
                 else:
-                    client_socket.send("Invalid credentials.".encode(FORMAT))
+                    client_socket.send("Invalid username and password.".encode(FORMAT))
 
         clients.add(client_socket)
         broadcast(f"{username} has joined the chat.", client_socket)
@@ -52,7 +51,8 @@ def handle_client(client_socket):
             msg = client_socket.recv(1024).decode(FORMAT)
             if not msg:
                 break
-            broadcast(f"{username}: {msg}", client_socket)
+
+            broadcast(msg, client_socket)
 
     finally:
         clients.remove(client_socket)
@@ -60,7 +60,6 @@ def handle_client(client_socket):
 
 
 def broadcast(msg, sender=None):
-    """Send the message to all clients."""
     for client in clients:
         if client != sender:
             try:
@@ -71,9 +70,11 @@ def broadcast(msg, sender=None):
 
 
 def start_server():
-    print(f"[LISTENING] Server is listening on {ADDR}")
+    print(f"*** Server is listening ***")
+    print(f"*** Connected with ('{HOST}', {PORT}) ***")
+
     while True:
-        client_socket, addr = server.accept()
+        client_socket, address = server.accept()
         thread = threading.Thread(target=handle_client, args=(client_socket,))
         thread.start()
 
