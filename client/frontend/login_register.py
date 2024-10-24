@@ -5,7 +5,7 @@ import tkinter as tk
 LABEL_TEXT_FONT = ("Arial", 16, "bold")
 INPUT_TEXT_FONT = ("Arial", 16)
 BUTTON_TEXT_FONT = ("Arial", 18)
-ERROR_TEXT_FONT = ("Arial", 12, "bold")
+ERROR_TEXT_FONT = ("Arial", 14, "bold")
 
 
 class LoginScreen:
@@ -96,12 +96,12 @@ class LoginScreen:
             self.client_app.send_message(f"REGISTER:{username}:{password}")
             response = self.client_app.receive_message()
 
-            if "successful" in response:
+            if response is None:
+                self.error_label.config(text="Error 500")
+            elif "SUCCESSFUL" in response:
                 self.switch_to_chat()
             else:
                 self.error_label.config(text="Registration failed. Try again.")
-        else:
-            self.error_label.config(text="Username and password cannot be empty.")
 
     def login(self):
         username = self.username_input.get()
@@ -111,9 +111,9 @@ class LoginScreen:
             self.client_app.send_message(f"LOGIN:{username}:{password}")
             response = self.client_app.receive_message()
 
-            if "successful" in response:
+            if response is None:
+                self.error_label.config(text="Error 500")
+            elif "SUCCESSFUL" in response:
                 self.switch_to_chat()
             else:
                 self.error_label.config(text="Login failed. Try again.")
-        else:
-            self.error_label.config(text="Username or Password cannot be empty.")
