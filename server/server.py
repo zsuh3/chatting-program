@@ -1,13 +1,23 @@
 import socket
+import ssl
 import threading
 from user import load_users, save_user
 
 SERVER_HOST = "localhost"
 PORT = 10001
+BACKLOG = 5
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_cert_chain(certfile="../cert.pem", keyfile="../cert.pem")
+context.load_verify_locations("../cert.pem")
+context.set_ciphers("AES128-SHA")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((SERVER_HOST, PORT))
-server.listen()
+server.listen(BACKLOG)
+
+server = context.wrap_socket(server, server_side=True)
 
 clients = []
 usernames = []
@@ -42,7 +52,7 @@ def receive():
 
         while True:
             # debugging print statements
-            client.send("Type 1 to register or 2 to login: ".encode("utf-8"))
+            client.send("Type '1' to register or '2' to login: ".encode("utf-8"))
             print("***** Waiting for option *****")
             option = client.recv(1024).decode("utf-8")
             print("***** Received option *****")

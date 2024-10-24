@@ -1,10 +1,15 @@
 import socket
+import ssl
 import threading
 
 SERVER_HOST = "localhost"
 PORT = 10001
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_verify_locations("../cert.pem")
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client = context.wrap_socket(client_socket, server_hostname=SERVER_HOST)
 client.connect((SERVER_HOST, PORT))
 
 username = ""
