@@ -150,7 +150,7 @@ class Client(tk.Tk):
         try:
             if self.client_socket:
                 self.client_socket.send(message.encode(FORMAT))
-                print(f"Sent: {message}")
+                print(f"CLIENT SENT: {message}")
             else:
                 print("Error: Client socket is not connected.")
         except Exception as e:
@@ -168,7 +168,7 @@ class Client(tk.Tk):
     def receive_response(self):
         try:
             response = self.client_socket.recv(1024).decode(FORMAT)
-            print(f"Received: {response}")
+            print(f"CLIENT RECEIVED: {response}")
             if "successful" in response.lower():
                 self.switch_to_chat()
             else:
