@@ -29,7 +29,7 @@ git clone https://github.com/zsuh3/chatting-program
 cd chatting-program/
 ```
 
-3. Create a virtual environment:
+3. Create a virtual environment (optional):
 
 ```commandline
 python -m venv venv
@@ -38,7 +38,7 @@ python -m venv venv
 > Note:
 > If ```python``` or ```python3``` is an alias for a different version, you should use ```python3.7```.
 
-4. Activate the virtual environment:
+4. Activate the virtual environment (if you did step 3):
 
 ```commandline
 source venv/bin/activate
