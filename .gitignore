@@ -9,5 +9,8 @@ __pycache__/
 # Ignore users.json (stores user's username and password)
 users.json
 
+# Ignore SSL certificate
+cert.pem
+
 # Ignore IDE related files
 .idea/
